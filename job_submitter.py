@@ -26,6 +26,8 @@ def parse_args():
         help='Memory required for the cluster. Default=4G',required=False)
     parser.add_argument('--execute-bashrc',default=False,action='store_true',
         help='Execute .bashrc file at beginning of script')
+    parser.add_argument('--print-host-info',default=False,action='store_true',
+        help='Print out information about which machine you are on')
     args = parser.parse_args()
     return args
 
@@ -51,6 +53,7 @@ if __name__=='__main__':
     "#$ -N %s" % name,
     " ",
     ". ~/.bashrc" if args.execute_bashrc else None,
+    "uname -a" if args.print_host_info else None,
     "cd %s" % starting_dir,
     cmd,
     " ",
