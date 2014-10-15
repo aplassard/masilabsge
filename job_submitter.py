@@ -28,6 +28,8 @@ def parse_args():
         help='Execute .bashrc file at beginning of script')
     parser.add_argument('--print-host-info',default=False,action='store_true',
         help='Print out information about which machine you are on')
+    parser.add_argument('--dont-submit',default=False,action='store_true',
+        help='Don\' submit the job. Just write the pbs file')
     args = parser.parse_args()
     return args
 
@@ -39,6 +41,7 @@ if __name__=='__main__':
     log_out_name = os.path.join(os.path.abspath(args.log_dir),"%s.out" % name)
     log_err_name = os.path.join(os.path.abspath(args.log_dir),"%s.err" % name)
     join_log = args.combine_output
+    submit = not args.dont_submit
     cmd = " ".join(args.command)
 
     lines = [
@@ -62,5 +65,6 @@ if __name__=='__main__':
     lines = filter(lambda x: x, lines)
     f = open(os.path.abspath(args.pbs_file),'w',0) if args.pbs_file else tempfile.NamedTemporaryFile(delete=True,mode='w',bufsize=0)
     f.write("\n".join(lines))
-    os.system('qsub %s' % f.name)
+    if submit:
+        os.system('qsub %s' % f.name)
     f.close()
