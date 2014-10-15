@@ -2,25 +2,27 @@
 import argparse
 import os
 import time
+import tempfile
 
 # TODO:
 #  Job Hold
 #  Email
 
 def parse_args():
+    t=str(int(time.time()))
     parser = argparse.ArgumentParser(description='Submit jobs to the MASI Lab Sun Grid Engine')
     parser.add_argument('--command',nargs="+",help='command to be submitted',required=True)
     parser.add_argument('--starting-dir',nargs=1,default=os.getcwd(),
         help='Directory to start script in. Default=`pwd`',required=False)
-    parser.add_argument('--log-dir',nargs=1,default=os.path.join(os.getcwd(),'logs/'),
+    parser.add_argument('--log-dir',default=os.path.join(os.getcwd(),'logs/'),
         help='Directory to write log files to. Default=`pwd`/logs/',required=False)
     parser.add_argument('--combine-output',default=False,action='store_true',
         required=False,help='Combine stdout and stderr into one file')
-    parser.add_argument('--name',nargs=1,default=str(int(time.time())),
+    parser.add_argument('--name',default="job_%s"%t,
         help='Name for script. Default=current time',required=False)
-    parser.add_argument('--pbs-file',nargs=1,default=False,
+    parser.add_argument('--pbs-file',default=False,
         help='File to save PBS file to. Default=Don\'t save',required=False)
-    parser.add_argument('--memory',nargs=1,default='4G',
+    parser.add_argument('--memory',default='4G',
         help='Memory required for the cluster. Default=4G',required=False)
     args = parser.parse_args()
     return args
@@ -48,5 +50,10 @@ if __name__=='__main__':
     "",
     "cd %s" % starting_dir,
     cmd,
+    "",
     ]
-    print "\n".join(lines)
+
+    f = open(os.path.abspath(args.pbs_file),'w',0) if args.pbs_file else tempfile.NamedTemporaryFile(delete=True,mode='w',bufsize=0)
+    f.write("\n".join(lines))
+    os.system('qsub %s' % f.name)
+    f.close()
