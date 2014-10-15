@@ -25,11 +25,13 @@ def parse_args():
     parser.add_argument('--memory',default='4G',
         help='Memory required for the cluster. Default=4G',required=False)
     parser.add_argument('--execute-bashrc',default=False,action='store_true',
-        help='Execute .bashrc file at beginning of script')
+        required=False,help='Execute .bashrc file at beginning of script')
     parser.add_argument('--print-host-info',default=False,action='store_true',
-        help='Print out information about which machine you are on')
+        required=False,help='Print out information about which machine you are on')
     parser.add_argument('--dont-submit',default=False,action='store_true',
-        help='Don\' submit the job. Just write the pbs file')
+        required=False,help='Don\' submit the job. Just write the pbs file')
+    parser.add_argument('--queue',default="clusterjob",required=False,
+        help="Which queue to submit to. Default=clusterjob")
     args = parser.parse_args()
     return args
 
@@ -38,6 +40,7 @@ if __name__=='__main__':
     memory = args.memory
     starting_dir = args.starting_dir
     name = args.name
+    queue = args.queue
     log_out_name = os.path.join(os.path.abspath(args.log_dir),"%s.out" % name)
     log_err_name = os.path.join(os.path.abspath(args.log_dir),"%s.err" % name)
     join_log = args.combine_output
@@ -47,6 +50,7 @@ if __name__=='__main__':
     lines = [
     "#!/bin/bash",
     " ",
+    "#$ -q %s"%queue,
     "#$ -o %s " % log_out_name,
     "#$ -e %s " % log_err_name,
     "#$ -j y" if join_log else "#$ -j n",
