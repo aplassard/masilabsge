@@ -32,6 +32,8 @@ def parse_args():
         required=False,help='Don\' submit the job. Just write the pbs file')
     parser.add_argument('--queue',default="clusterjob",required=False,
         help="Which queue to submit to. Default=clusterjob")
+    parser.add_argument('--priority',default=None,required=False,
+        help=argparse.SUPPRESS)
     args = parser.parse_args()
     return args
 
@@ -43,6 +45,7 @@ if __name__=='__main__':
     queue = args.queue
     log_out_name = os.path.join(os.path.abspath(args.log_dir),"%s.out" % name)
     log_err_name = os.path.join(os.path.abspath(args.log_dir),"%s.err" % name)
+    priority=args.priority
     join_log = args.combine_output
     submit = not args.dont_submit
     cmd = " ".join(args.command)
@@ -54,6 +57,7 @@ if __name__=='__main__':
     "#$ -o %s " % log_out_name,
     "#$ -e %s " % log_err_name,
     "#$ -j y" if join_log else "#$ -j n",
+    "#$ -p %s" % priority if priority else None,
     "#$ -l mem_free=%s" % memory,
     "#$ -l mem_token=%s" % memory,
     "#$ -l h_vmem=%s" % memory,
