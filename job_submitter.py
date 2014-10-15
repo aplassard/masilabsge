@@ -12,7 +12,7 @@ def parse_args():
     t=str(int(time.time()))
     parser = argparse.ArgumentParser(description='Submit jobs to the MASI Lab Sun Grid Engine')
     parser.add_argument('--command',nargs="+",help='command to be submitted',required=True)
-    parser.add_argument('--starting-dir',nargs=1,default=os.getcwd(),
+    parser.add_argument('--starting-dir',default=os.getcwd(),
         help='Directory to start script in. Default=`pwd`',required=False)
     parser.add_argument('--log-dir',default=os.path.join(os.getcwd(),'logs/'),
         help='Directory to write log files to. Default=`pwd`/logs/',required=False)
