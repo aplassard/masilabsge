@@ -24,6 +24,8 @@ def parse_args():
         help='File to save PBS file to. Default=Don\'t save',required=False)
     parser.add_argument('--memory',default='4G',
         help='Memory required for the cluster. Default=4G',required=False)
+    parser.add_argument('--execute-bashrc',default=False,action='store_true',
+        help='Execute .bashrc file at beginning of script')
     args = parser.parse_args()
     return args
 
@@ -39,7 +41,7 @@ if __name__=='__main__':
 
     lines = [
     "#!/bin/bash",
-    "",
+    " ",
     "#$ -o %s " % log_out_name,
     "#$ -e %s " % log_err_name,
     "#$ -j y" if join_log else "#$ -j n",
@@ -47,12 +49,14 @@ if __name__=='__main__':
     "#$ -l mem_token=%s" % memory,
     "#$ -l h_vmem=%s" % memory,
     "#$ -N %s" % name,
-    "",
+    " ",
+    ". ~/.bashrc" if args.execute_bashrc else None,
     "cd %s" % starting_dir,
     cmd,
-    "",
+    " ",
     ]
 
+    lines = filter(lambda x: x, lines)
     f = open(os.path.abspath(args.pbs_file),'w',0) if args.pbs_file else tempfile.NamedTemporaryFile(delete=True,mode='w',bufsize=0)
     f.write("\n".join(lines))
     os.system('qsub %s' % f.name)
